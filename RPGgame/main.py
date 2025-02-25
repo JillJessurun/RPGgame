@@ -14,8 +14,7 @@ pygame.display.set_caption('My Pygame Window')
 state_manager = StateManager()
 
 # main game loop
-running = True
-while running:
+while variables.running:
     screen.fill((0, 0, 0))
     
     # get mouse position
@@ -24,15 +23,15 @@ while running:
     # event handling
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            running = False  # close the window
+            variables.running = False  # close the window
             
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
-                running = False
             if event.key == pygame.K_1:
-                state_manager.change_state("level1")
-            if event.key == pygame.K_2:
                 state_manager.change_state("menu")
+            if event.key == pygame.K_2:
+                state_manager.change_state("level1")
+            if event.key == pygame.K_3:
+                state_manager.change_state("level2")
         
         # handle events within the page
         state_manager.handle_events(event, state_manager)

@@ -1,7 +1,7 @@
 import pygame
 from states.state import State
 
-class Level1State(State):
+class Level2State(State):
     def __init__(self):
         super().__init__()
 
@@ -10,7 +10,7 @@ class Level1State(State):
         pass
 
     def draw(self, screen, mouse_x, mouse_y):
-        screen.fill((255, 0, 0))  # Green background for gameplay
+        screen.fill((0, 255, 0))  # Green background for gameplay
         # Draw game elements here
 
     def handle_events(self, event, state_manager):

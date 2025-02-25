@@ -1,11 +1,13 @@
 from pages.menu import MenuState
 from pages.level1 import Level1State
+from pages.level2 import Level2State
 
 class StateManager:
     def __init__(self):
         self.states = {
             "menu": MenuState(),
-            "level1": Level1State()
+            "level1": Level1State(),
+            "level2": Level2State()
         }
         self.current_scene = self.states["menu"]
 

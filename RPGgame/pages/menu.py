@@ -32,10 +32,12 @@ class MenuState(State):
 
     def handle_events(self, event, state_manager):
         if event.type == pygame.QUIT:
-            self.running = False  # Exit game
+            variables.running = False  # Exit game
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_RETURN:
                 return "gameplay"  # Transition to gameplay state
+            if event.key == pygame.K_ESCAPE:
+                variables.running = False
         if event.type == pygame.MOUSEBUTTONDOWN:  # Mouse click
             if button_rect.collidepoint(event.pos):
                 state_manager.change_state("level1")
