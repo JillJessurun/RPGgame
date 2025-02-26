@@ -19,7 +19,7 @@ class MenuState(State):
         screen.fill(variables.WHITE)
         
         # Change button color if hovered
-        button_color = variables.DARK_BLUE if button_rect.collidepoint(mouse_x, mouse_y) else variables.BLUE
+        button_color = variables.COLOUR_START_BUTTON_HOVER if button_rect.collidepoint(mouse_x, mouse_y) else variables.COLOUR_START_BUTTON
 
         # Draw button
         pygame.draw.rect(screen, button_color, button_rect, border_radius=10)

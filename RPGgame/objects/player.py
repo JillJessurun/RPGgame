@@ -1,19 +1,18 @@
 import pygame
 import variables
-from component import Component
+from objects.component import Component
 
 class Player(Component):
     def __init__(self):
         super().__init__()
         
         # constants
-        self.WHITE = (255, 255, 255)
-        self.BLUE = (0, 0, 255)
         self.PLAYER_RADIUS = 20
         self.PLAYER_SPEED = 2
 
         # player position
-        self.player_x, self.player_y = variables.window_width // 2, variables.window_height // 2
+        self.player_x = int(variables.window_width/2)
+        self.player_y = int(variables.window_height/2)
         
         # moving variables
         self.moving_left = False
@@ -23,8 +22,8 @@ class Player(Component):
 
     def update(self, mouse_x, mouse_y):
         # Boundary checks
-        self.player_x = max(self.PLAYER_RADIUS, min(variables.window_width - self.PLAYER_RADIUS, self.player_x))
-        self.player_y = max(self.PLAYER_RADIUS, min(variables.window_height - self.PLAYER_RADIUS, self.player_y))
+        #self.player_x = max(self.PLAYER_RADIUS, min(variables.window_width - self.PLAYER_RADIUS, self.player_x))
+        #self.player_y = max(self.PLAYER_RADIUS, min(variables.window_height - self.PLAYER_RADIUS, self.player_y))
         
         if self.moving_left:
             self.player_x -= self.PLAYER_SPEED
@@ -35,8 +34,8 @@ class Player(Component):
         if self.moving_down:
             self.player_y += self.PLAYER_SPEED
 
-    def draw(self, screen, mouse_x, mouse_y):
-        pygame.draw.circle(screen, self.BLUE, (self.player_x, self.player_y), self.PLAYER_RADIUS)
+    def draw(self, screen,  camera_x, camera_y):
+        pygame.draw.rect(screen, variables.COLOUR_PLAYER, (self.player_x - camera_x, self.player_y - camera_y, self.PLAYER_RADIUS, self.PLAYER_RADIUS))
 
     def handle_events(self, event, state_manager):
         # Movement logic

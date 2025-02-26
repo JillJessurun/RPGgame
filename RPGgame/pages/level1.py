@@ -1,22 +1,34 @@
 import pygame
 from states.state import State
-from player import Player
+from objects.player import Player
 import variables
+from map import Map
 
 class Level1State(State):
     def __init__(self):
         super().__init__()
+        
+        # map
+        self.map = Map()
+        
+        # player
         self.player = Player()
+        
+        # camera
+        self.camera_x, self.camera_y = 0, 0
 
     def update(self, mouse_x, mouse_y):
-        # component updates
+        new_x, new_y = self.player.player_x, self.player.player_y
+        
+        # update player
         self.player.update(mouse_x, mouse_y)
 
     def draw(self, screen, mouse_x, mouse_y):
-        screen.fill(variables.BLACK)
+        screen.fill(variables.COLOUR_GROUND)
         
         # component drawings
-        self.player.draw(screen, mouse_x, mouse_y)
+        self.map.draw(screen, self.camera_x, self.camera_y)
+        self.player.draw(screen, self.camera_x, self.camera_y)
 
     def handle_events(self, event, state_manager):
         if event.type == pygame.QUIT:

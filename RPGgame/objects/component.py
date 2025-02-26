@@ -5,7 +5,7 @@ class Component:
     def update(self, mouse_x, mouse_y):
         pass
 
-    def draw(self, screen, mouse_x, mouse_y):
+    def draw(self, screen):
         pass
 
     def handle_events(self, event, state_manager):
