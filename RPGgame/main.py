@@ -20,7 +20,10 @@ while variables.running:
     # get mouse position
     mouse_x, mouse_y = pygame.mouse.get_pos()
     
-    # event handling
+    # get keys
+    keys = pygame.key.get_pressed()
+    
+    # page event handling
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             variables.running = False  # close the window
@@ -36,10 +39,10 @@ while variables.running:
         # handle events within the page
         state_manager.handle_events(event, state_manager)
     
-    # update state manager
+    # update page state manager
     state_manager.update(mouse_x, mouse_y)
     state_manager.draw(screen, mouse_x, mouse_y)
-
+    
     # update the display
     pygame.display.flip()
 

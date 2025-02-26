@@ -9,13 +9,13 @@ class StateManager:
             "level1": Level1State(),
             "level2": Level2State()
         }
-        self.current_scene = self.states["menu"]
+        self.current_state = self.states["menu"]
 
     def change_state(self, scene_name):
-        self.current_scene = self.states[scene_name]
+        self.current_state = self.states[scene_name]
 
     def handle_events(self, event, state_manager):
-        next_scene = self.current_scene.handle_events(event, state_manager)
+        next_scene = self.current_state.handle_events(event, state_manager)
         if next_scene:
             if next_scene == "quit":
                 return False
@@ -23,7 +23,7 @@ class StateManager:
         return True
 
     def update(self, mouse_x, mouse_y):
-        self.current_scene.update(mouse_x, mouse_y)
+        self.current_state.update(mouse_x, mouse_y)
 
     def draw(self, screen, mouse_x, mouse_y):
-        self.current_scene.draw(screen, mouse_x, mouse_y)
+        self.current_state.draw(screen, mouse_x, mouse_y)
