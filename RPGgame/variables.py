@@ -9,8 +9,9 @@ BLACK = (0, 0, 0)
 # other colours
 COLOUR_START_BUTTON = (0, 102, 255)
 COLOUR_START_BUTTON_HOVER = (0, 51, 153)
-COLOUR_WALL = (30, 14, 1)
-COLOUR_GROUND = (61, 35, 12)
+#COLOUR_WALL = (30, 14, 1)
+COLOUR_GROUND = (87, 65, 32)
+COLOUR_WALL = (24, 15, 2)
 COLOUR_PLAYER = (255, 119, 0)
 
 # state of the application

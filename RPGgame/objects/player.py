@@ -8,7 +8,7 @@ class Player(Component):
         
         # constants
         self.PLAYER_RADIUS = 20
-        self.PLAYER_SPEED = 2
+        self.PLAYER_SPEED = 4
 
         # player position
         self.player_x = int(variables.window_width/2)
@@ -19,42 +19,92 @@ class Player(Component):
         self.moving_right = False
         self.moving_up = False
         self.moving_down = False
+        
+    def collision_check(self, game_map, old_x, old_y):
+        for row_index, row in enumerate(game_map.game_map):
+            for tile_index, tile in enumerate(row):
+                # calculate x and y positions of the tile
+                tile_x = game_map.grid_column * tile_index
+                tile_y = game_map.grid_row * row_index
+                
+                # rects for collission check
+                player_rect = pygame.Rect(self.player_x, self.player_y, self.PLAYER_RADIUS, self.PLAYER_RADIUS)
+                tile_rect = pygame.Rect(tile_x-game_map.POSITION_OFFSET, tile_y-game_map.POSITION_OFFSET, game_map.grid_column+game_map.DRAWING_OFFSET, game_map.grid_row+game_map.DRAWING_OFFSET)
+                
+                # Check for collision
+                if tile == 1:
+                    if player_rect.colliderect(tile_rect):
+                        #print("Collision detected!")
+                        self.player_x, self.player_y = old_x, old_y  # Revert position
 
-    def update(self, mouse_x, mouse_y):
+    def update(self, mouse_x, mouse_y, game_map):
         # Boundary checks
         #self.player_x = max(self.PLAYER_RADIUS, min(variables.window_width - self.PLAYER_RADIUS, self.player_x))
         #self.player_y = max(self.PLAYER_RADIUS, min(variables.window_height - self.PLAYER_RADIUS, self.player_y))
         
+        # Store the old position
+        old_x, old_y = self.player_x, self.player_y
+        
         if self.moving_left:
             self.player_x -= self.PLAYER_SPEED
-        if self.moving_right:
+        elif self.moving_right:
             self.player_x += self.PLAYER_SPEED
-        if self.moving_up:
+        elif self.moving_up:
             self.player_y -= self.PLAYER_SPEED
-        if self.moving_down:
+        elif self.moving_down:
             self.player_y += self.PLAYER_SPEED
+            
+        self.collision_check(game_map, old_x, old_y)
 
     def draw(self, screen,  camera_x, camera_y):
         pygame.draw.rect(screen, variables.COLOUR_PLAYER, (self.player_x - camera_x, self.player_y - camera_y, self.PLAYER_RADIUS, self.PLAYER_RADIUS))
 
     def handle_events(self, event, state_manager):
-        # Movement logic
+        # movement logic
         if event.type == pygame.KEYDOWN:
             if event.key in (pygame.K_LEFT, pygame.K_a):
                 self.moving_left = True
-            if event.key in (pygame.K_RIGHT, pygame.K_d):
-                self.moving_right = True
-            if event.key in (pygame.K_UP, pygame.K_w):
-                self.moving_up = True
-            if event.key in (pygame.K_DOWN, pygame.K_s):
-                self.moving_down = True
+                self.moving_right = False
+                self.moving_up = False
+                self.moving_down = False
 
-        if event.type == pygame.KEYUP:
+            elif event.key in (pygame.K_RIGHT, pygame.K_d):
+                self.moving_right = True
+                self.moving_left = False
+                self.moving_up = False
+                self.moving_down = False
+
+            elif event.key in (pygame.K_UP, pygame.K_w):
+                self.moving_up = True
+                self.moving_down = False
+                self.moving_left = False
+                self.moving_right = False
+
+            elif event.key in (pygame.K_DOWN, pygame.K_s):
+                self.moving_down = True
+                self.moving_up = False
+                self.moving_left = False
+                self.moving_right = False
+
+        elif event.type == pygame.KEYUP:
+            # check which key was released and disable its movement
             if event.key in (pygame.K_LEFT, pygame.K_a):
                 self.moving_left = False
-            if event.key in (pygame.K_RIGHT, pygame.K_d):
+            elif event.key in (pygame.K_RIGHT, pygame.K_d):
                 self.moving_right = False
-            if event.key in (pygame.K_UP, pygame.K_w):
+            elif event.key in (pygame.K_UP, pygame.K_w):
                 self.moving_up = False
-            if event.key in (pygame.K_DOWN, pygame.K_s):
+            elif event.key in (pygame.K_DOWN, pygame.K_s):
                 self.moving_down = False
+
+            # Check if another movement key is still held
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_LEFT] or keys[pygame.K_a]:
+                self.moving_left = True
+            elif keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+                self.moving_right = True
+            elif keys[pygame.K_UP] or keys[pygame.K_w]:
+                self.moving_up = True
+            elif keys[pygame.K_DOWN] or keys[pygame.K_s]:
+                self.moving_down = True
+

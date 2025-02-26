@@ -21,13 +21,14 @@ class Level1State(State):
         new_x, new_y = self.player.player_x, self.player.player_y
         
         # update player
-        self.player.update(mouse_x, mouse_y)
+        self.player.update(mouse_x, mouse_y, self.map)
+        #self.map.update(self.player)
 
     def draw(self, screen, mouse_x, mouse_y):
         screen.fill(variables.COLOUR_GROUND)
         
         # component drawings
-        self.map.draw(screen, self.camera_x, self.camera_y)
+        self.map.draw(screen, self.camera_x, self.camera_y, self.player)
         self.player.draw(screen, self.camera_x, self.camera_y)
 
     def handle_events(self, event, state_manager):
