@@ -26,7 +26,7 @@ class Level1State(State):
         
         # update components
         self.player.update(mouse_x, mouse_y, self.map)
-        #self.map.update(self.player)
+        #self.map.update()
         self.enemy.update(mouse_x, mouse_y, self.map)
         
 
