@@ -7,6 +7,11 @@ pygame.init()
 # create the display window
 screen = pygame.display.set_mode((variables.window_width, variables.window_height), pygame.FULLSCREEN)
 
+# set proper window size based on monitor
+window_x, window_y = pygame.display.get_window_size()
+variables.window_width = window_x
+variables.window_height = window_y
+
 # set the window title
 pygame.display.set_caption('My Pygame Window')
 

@@ -7,12 +7,19 @@ class Player(Component):
         super().__init__()
         
         # constants
-        self.PLAYER_RADIUS = 20
+        self.PLAYER_RADIUS = 50
+        self.PLAYER_HITBOX = 40
+        self.PLAYER_HITBOX_OFFSET = 5
         self.PLAYER_SPEED = 4
+        self.START_OFFSET = 30
+        
+        # sprite
+        self.player_image = pygame.image.load("RPGgame/images/ghost.png").convert_alpha()
+        self.player_image = pygame.transform.scale(self.player_image, (self.PLAYER_RADIUS, self.PLAYER_RADIUS))
 
         # player position
         self.player_x = int(variables.window_width/2)
-        self.player_y = int(variables.window_height/2)
+        self.player_y = int(variables.window_height/2-self.START_OFFSET)
         
         # moving variables
         self.moving_left = False
@@ -28,7 +35,7 @@ class Player(Component):
                 tile_y = game_map.grid_row * row_index
                 
                 # rects for collission check
-                player_rect = pygame.Rect(self.player_x, self.player_y, self.PLAYER_RADIUS, self.PLAYER_RADIUS)
+                player_rect = pygame.Rect(self.player_x+self.PLAYER_HITBOX_OFFSET, self.player_y+self.PLAYER_HITBOX_OFFSET, self.PLAYER_HITBOX, self.PLAYER_HITBOX)
                 tile_rect = pygame.Rect(tile_x-game_map.POSITION_OFFSET, tile_y-game_map.POSITION_OFFSET, game_map.grid_column+game_map.DRAWING_OFFSET, game_map.grid_row+game_map.DRAWING_OFFSET)
                 
                 # Check for collision
@@ -57,7 +64,9 @@ class Player(Component):
         self.collision_check(game_map, old_x, old_y)
 
     def draw(self, screen,  camera_x, camera_y):
-        pygame.draw.rect(screen, variables.COLOUR_PLAYER, (self.player_x - camera_x, self.player_y - camera_y, self.PLAYER_RADIUS, self.PLAYER_RADIUS))
+        #pygame.draw.rect(screen, variables.COLOUR_PLAYER, (self.player_x - camera_x, self.player_y - camera_y, self.PLAYER_RADIUS, self.PLAYER_RADIUS))
+        screen.blit(self.player_image, (self.player_x - camera_x, self.player_y - camera_y))
+
 
     def handle_events(self, event, state_manager):
         # movement logic

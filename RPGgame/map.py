@@ -6,8 +6,12 @@ class Map:
     def __init__(self):
         self.tiles = {}  # Dictionary to hold map data
         self.TILE_SIZE = 10
-        self.POSITION_OFFSET = 10
-        self.DRAWING_OFFSET = 20
+        self.POSITION_OFFSET = 5
+        self.DRAWING_OFFSET = 10
+        
+        # sprites
+        self.bricks_image = pygame.image.load("RPGgame/images/bricks.png").convert_alpha()
+        self.ground_image = pygame.image.load("RPGgame/images/wood.png").convert_alpha()
         
         self.game_map = [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -21,7 +25,7 @@ class Map:
             [1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
             [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
-            [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
             [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
             [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
             [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
@@ -53,42 +57,29 @@ class Map:
         # lists with length of the grids
         self.grid_x_list = [self.grid_column] * len(longest_row)
         self.grid_y_list = [self.grid_row] * len(self.game_map)
-        
-        '''
-    def update(self, player):
+
+    def draw(self, screen, camera_x, camera_y, player):
+        # draw ground tiles
         for row_index, row in enumerate(self.game_map):
             for tile_index, tile in enumerate(row):
                 # calculate x and y positions of the tile
                 tile_x = self.grid_column * tile_index
                 tile_y = self.grid_row * row_index
                 
-                # rects for collission check
-                player_rect = pygame.Rect(player.player_x, player.player_y, player.PLAYER_RADIUS, player.PLAYER_RADIUS)
-                tile_rect = pygame.Rect(tile_x-self.POSITION_OFFSET, tile_y-self.POSITION_OFFSET, self.grid_column+self.DRAWING_OFFSET, self.grid_row+self.DRAWING_OFFSET)
-                
-                # Check for collision
-                if tile == 1:
-                    if player_rect.colliderect(tile_rect):
-                        #print("Collision detected!")
-                        player.colliding = True
-    '''
-
-    def draw(self, screen, camera_x, camera_y, player):
-        # iterate through rows and tiles and draw if necessary
+                if tile == 0:
+                    # draw ground
+                    self.ground_image = pygame.transform.scale(self.ground_image, (self.grid_column+self.DRAWING_OFFSET, self.grid_row+self.DRAWING_OFFSET))
+                    screen.blit(self.ground_image, (tile_x-self.POSITION_OFFSET, tile_y-self.POSITION_OFFSET))
+        
+        # draw wall tiles
         for row_index, row in enumerate(self.game_map):
             for tile_index, tile in enumerate(row):
+                # calculate x and y positions of the tile
+                tile_x = self.grid_column * tile_index
+                tile_y = self.grid_row * row_index
+                
                 if tile == 1:
-                    #print("WALL")
-                    
-                    # calculate x and y positions of the tile
-                    tile_x = self.grid_column * tile_index
-                    tile_y = self.grid_row * row_index
-                    
-                    # rects for collission check
-                    tile_rect = pygame.Rect(tile_x-self.POSITION_OFFSET, tile_y-self.POSITION_OFFSET, self.grid_column+self.DRAWING_OFFSET, self.grid_row+self.DRAWING_OFFSET)
-                    
-                    # draw wall tile
-                    pygame.draw.rect(screen, variables.COLOUR_WALL, tile_rect)
-                    
-                #if tile == 0:
-                #    print("GROUND")
+                    # draw wall
+                    self.bricks_image = pygame.transform.scale(self.bricks_image, (self.grid_column+self.DRAWING_OFFSET, self.grid_row+self.DRAWING_OFFSET))
+                    self.bricks_image = variables.round_corners(self.bricks_image, 10)
+                    screen.blit(self.bricks_image, (tile_x-self.POSITION_OFFSET, tile_y-self.POSITION_OFFSET))
