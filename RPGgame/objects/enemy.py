@@ -8,7 +8,7 @@ class Enemy(Component):
         super().__init__()
         
         # constants
-        self.ENEMY_SPEED = 3
+        self.ENEMY_SPEED = 20
         self.SPAWNER_FOUND = False
         self.IS_MOVING = False
         self.ANIMATION_SPEED = 10
@@ -18,6 +18,7 @@ class Enemy(Component):
         self.SPRITE_HEIGHT = 111 # sheet height
         
         self.direction_indexes = []
+        self.enemy_indexes = []
         
         # enemy and direction positions
         self.enemy_pos_x = 0
@@ -45,12 +46,12 @@ class Enemy(Component):
             frame = pygame.transform.rotate(frame, 90)
             self.frames.append(frame)
             
-        # Animation variables
+        # animation variables
         self.current_frame = 0
         self.animation_timer = 0
         
     def update(self, mouse_x, mouse_y, map):
-        # Update animation
+        # update animation
         self.animation_timer += 1
         if self.animation_timer >= self.ANIMATION_SPEED:
             self.current_frame = (self.current_frame + 1) % self.NUM_SPRITES
@@ -67,14 +68,14 @@ class Enemy(Component):
                         self.SPAWNER_FOUND = True
                         
                         # set initial direction index to current index
-                        self.direction_indexes = [row_index, tile_index]
+                        self.enemy_indexes = [row_index, tile_index]
         
         if not self.IS_MOVING:
             # iterate trough every tile
             for row_index, row in enumerate(map.game_map):
                 for tile_index, tile in enumerate(row):
                     # check if enemy pos found
-                    if self.direction_indexes[0] == row_index and self.direction_indexes[1] == tile_index:
+                    if self.enemy_indexes[0] == row_index and self.enemy_indexes[1] == tile_index: # enemy pos found
                         # create arrays with the row and tile index per direction from the current enemy position
                         
                         # left
@@ -117,51 +118,193 @@ class Enemy(Component):
                 if self.enemy_pos_x != self.direction_pos_x:
                     # Move on the x-axis
                     if self.enemy_pos_x < self.direction_pos_x:
-                        self.moving_right = True
-                    if self.enemy_pos_x > self.direction_pos_x:
-                        self.moving_left = True
-                if self.enemy_pos_y != self.direction_pos_y:
+                        self.moving_right = True # right
+                        #print("move right")
+                    else:
+                        self.moving_left = True # left
+                        #print("move left")
+                else:
                     # Move on the y-axis
                     if self.enemy_pos_y > self.direction_pos_y:
-                        self.moving_up = True
-                    if self.enemy_pos_y < self.direction_pos_y:
-                        self.moving_down = True
+                        self.moving_up = True # up
+                        #print("move up")
+                    else:
+                        self.moving_down = True # down
+                        #print("move down")
                 self.direction_assigned = True
             else:
                 # move based on direction
                 if self.moving_up:
-                    self.enemy_pos_y -= min(self.ENEMY_SPEED, self.enemy_pos_y - self.direction_pos_y)  # Move up
-                    if self.enemy_pos_y <= self.direction_pos_y:  # Check if target reached
-                        self.IS_MOVING = False
+                    # temp arrays for wallfinding
+                    current_row_index = [self.enemy_indexes[0], self.enemy_indexes[1]]
+                    next_wall_indexes = [] # spot to save next wall
+                    counter = 0
+
+                    # find wall
+                    while next_wall_indexes == []:
+                        if map.game_map[current_row_index[0]][current_row_index[1]] == 1:
+                            # next wall found!
+                            next_wall_indexes = [current_row_index[0],current_row_index[1]]
+                            break
+                        else:
+                            # increment and go to next row to find wall
+                            counter = counter + 1
+                            current_row_index = [self.enemy_indexes[0]-counter, self.enemy_indexes[1]]     
+                            
+                            # EERSTE RONDE (BOOLEAN MAKEN VOOR OF HET DE EERSTE RONDE IS) TELLEN TOT 3
+                            # BIJ 3 SLA JE DE CURRENT INDEXES OP
+                            # DAT WORDT DE TARGET IPV DE NEXT ONE
+                            #
+                            # NEXT_WALlLINDEXES = LSDKFJSDJFKLFJKLJDLFJSDF
+                            # BREAK
+                            
+                    # next wall coordinates
+                    next_wall_y = map.grid_row * next_wall_indexes[0]
+                    next_wall_x = map.grid_column * next_wall_indexes[1]
+                    
+                    # check when enemy and next wall collide
+                    if (self.enemy_pos_y < next_wall_y):
+                        self.enemy_pos_y = next_wall_y
+                        self.enemy_indexes = [next_wall_indexes[0]+1, next_wall_indexes[1]] # +1 because enemy must not be in the wall but next to the wall
+                        
+                        # end
                         self.moving_up = False
-                        self.direction_assigned = False
-
-                elif self.moving_down:
-                    self.enemy_pos_y += min(self.ENEMY_SPEED, self.direction_pos_y - self.enemy_pos_y)  # Move down 
-                    if self.enemy_pos_y >= self.direction_pos_y:  # Check if target reached
-                        self.IS_MOVING = False
                         self.moving_down = False
-                        self.direction_assigned = False
-
-                        
-                elif self.moving_left:
-                   self.enemy_pos_x -= min(self.ENEMY_SPEED, self.enemy_pos_x - self.direction_pos_x)  # Move left
-                   if self.enemy_pos_x <= self.direction_pos_x: # check whether target reached
-                        # target reached
-                        self.IS_MOVING = False
                         self.moving_left = False
+                        self.moving_right = False
+                        
+                        self.IS_MOVING = False
                         self.direction_assigned = False
                         
-                elif self.moving_right:
-                    self.enemy_pos_x += min(self.ENEMY_SPEED, self.direction_pos_x - self.enemy_pos_x)  # Move right
-                    if self.enemy_pos_x >= self.direction_pos_x: # check whether target reached
-                        # target reached
-                        self.IS_MOVING = False
+                    # move
+                    else: self.enemy_pos_y -= self.ENEMY_SPEED
+
+                if self.moving_down:
+                    # temp arrays for wallfinding
+                    current_row_index = [self.enemy_indexes[0], self.enemy_indexes[1]]
+                    next_wall_indexes = [] # spot to save next wall
+                    counter = 0
+
+                    # find wall
+                    while next_wall_indexes == []:
+                        if map.game_map[current_row_index[0]][current_row_index[1]] == 1:
+                            # next wall found!
+                            next_wall_indexes = [current_row_index[0],current_row_index[1]]
+                        else:
+                            # increment and go to next row to find wall
+                            counter = counter + 1
+                            current_row_index = [self.enemy_indexes[0]+counter, self.enemy_indexes[1]]     
+                    
+                    # next wall coordinates
+                    next_wall_y = (map.grid_row * next_wall_indexes[0])-map.grid_row # minus one gridrow to get hitbox of wall
+                    next_wall_x = map.grid_column * next_wall_indexes[1]
+                    
+                    # check when enemy and next wall collide
+                    if (self.enemy_pos_y > next_wall_y):
+                        self.enemy_pos_y = next_wall_y
+                        self.enemy_indexes = [next_wall_indexes[0]-1, next_wall_indexes[1]]
+                        
+                        # end
+                        self.moving_up = False
+                        self.moving_down = False
+                        self.moving_left = False
                         self.moving_right = False
+                        
+                        self.IS_MOVING = False
                         self.direction_assigned = False
-                else:
-                    self.IS_MOVING = False
-                    self.direction_assigned = False
+                        
+                    # move
+                    else: self.enemy_pos_y += self.ENEMY_SPEED
+                  
+                if self.moving_left:
+                    # temp arrays for wallfinding
+                    current_row_index = [self.enemy_indexes[0], self.enemy_indexes[1]]
+                    next_wall_indexes = [] # spot to save next wall
+                    counter = 0
+
+                    # find wall
+                    while next_wall_indexes == []:
+                        if map.game_map[current_row_index[0]][current_row_index[1]] == 1:
+                            # next wall found!
+                            next_wall_indexes = [current_row_index[0],current_row_index[1]]
+                        else:
+                            # increment and go to next row to find wall
+                            counter = counter + 1
+                            current_row_index = [self.enemy_indexes[0], self.enemy_indexes[1]-counter]     
+                    
+                    # next wall coordinates
+                    next_wall_y = self.enemy_pos_y
+                    next_wall_x = map.grid_column * next_wall_indexes[1]
+                    
+                    #print("ENEMY INDEXES: ", self.enemy_indexes[0], ", ", self.enemy_indexes[1])
+                    #print ("NEXT WALL INDEXES: ", next_wall_indexes[0], ", ", next_wall_indexes[1])
+                    #print("ENEMY COORDINATES: ", self.enemy_pos_x, ", ", self.enemy_pos_y)
+                    #print ("NEXT WALL COORDINATES: ", next_wall_x, ", ", next_wall_y)
+                    
+                    # check when enemy and next wall collide
+                    if (self.enemy_pos_x < next_wall_x):
+                        self.enemy_pos_x = next_wall_x
+                        self.enemy_indexes = [next_wall_indexes[0], next_wall_indexes[1]+1]
+                        
+                        # end
+                        self.moving_up = False
+                        self.moving_down = False
+                        self.moving_left = False
+                        self.moving_right = False
+                        
+                        self.IS_MOVING = False
+                        self.direction_assigned = False
+                        
+                    # move
+                    else: self.enemy_pos_x -= self.ENEMY_SPEED
+                        
+                if self.moving_right:
+                    # temp arrays for wallfinding
+                    current_row_index = [self.enemy_indexes[0], self.enemy_indexes[1]]
+                    next_wall_indexes = [] # spot to save next wall
+                    counter = 0
+                    
+                    # find wall
+                    while next_wall_indexes == []:
+                        if map.game_map[current_row_index[0]][current_row_index[1]] == 1:
+                            # next wall found!
+                            next_wall_indexes = [current_row_index[0],current_row_index[1]]
+                        else:
+                            # increment and go to next row to find wall
+                            counter = counter + 1
+                            current_row_index = [self.enemy_indexes[0], self.enemy_indexes[1]+counter]
+                            
+                    # next wall coordinates
+                    next_wall_y = self.enemy_pos_y
+                    next_wall_x = (map.grid_column * next_wall_indexes[1])-map.grid_column # - one gridcolumn to get the hitbox of the wall
+                    
+                    #print("ENEMY COORDINATES: ", self.enemy_pos_x, ", ", self.enemy_pos_y)
+                    #print ("NEXT WALL COORDINATES: ", next_wall_x, ", ", next_wall_y)
+                    
+                    # check when enemy and next wall collide
+                    if (self.enemy_pos_x > next_wall_x):
+                        self.enemy_pos_x = next_wall_x
+                        self.enemy_indexes = [next_wall_indexes[0], next_wall_indexes[1]-1]
+                        
+                        # end
+                        self.moving_up = False
+                        self.moving_down = False
+                        self.moving_left = False
+                        self.moving_right = False
+                        
+                        self.IS_MOVING = False
+                        self.direction_assigned = False
+                        
+                    # move
+                    else: self.enemy_pos_x += self.ENEMY_SPEED
+                #else:
+                    #print("stand still")
+                    #self.IS_MOVING = False
+                    #self.direction_assigned = False
 
     def draw(self, screen,  camera_x, camera_y, game_map):
         screen.blit(self.frames[self.current_frame], (self.enemy_pos_x, self.enemy_pos_y))
+        
+        # draw hitbox
+        #enemy_hitbox_vertical = pygame.Rect(self.enemy_pos_x + self.SPRITE_WIDTH/3, self.enemy_pos_y, self.SPRITE_WIDTH/3, self.SPRITE_HEIGHT)
+        #pygame.draw.rect(screen, variables.WHITE, enemy_hitbox_vertical, 1)
